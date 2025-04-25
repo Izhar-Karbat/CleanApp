@@ -1,5 +1,3 @@
-// src/utils/theme.js
-
 export const COLORS = {
   primary: '#88C9E8',    // Light cyan
   secondary: '#B7A2DB',  // Lavender purple

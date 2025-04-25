@@ -18,173 +18,100 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { COLORS, FONT_SIZES, SPACING } from '../../utils/theme';
 
 const SettingsScreen = () => {
-  // Sample state - in a real app these would be stored in AsyncStorage or context
-  const [startDate, setStartDate] = useState(new Date(new Date().getTime() - 5 * 24 * 60 * 60 * 1000)); // 5 days ago
-  const [dailyCost, setDailyCost] = useState('50');
-  const [showNotifications, setShowNotifications] = useState(true);
-  const [reminderTime, setReminderTime] = useState(new Date(new Date().setHours(20, 0, 0, 0))); // 8:00 PM
-  
-  // Date picker state
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  
-  // Format date for display
-  const formatDate = (date) => {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-  
-  // Format time for display
-  const formatTime = (date) => {
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
-  };
-  
-  // Handle date change
-  const onDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || startDate;
-    setShowDatePicker(Platform.OS === 'ios');
-    setStartDate(currentDate);
-  };
-  
-  // Handle time change
-  const onTimeChange = (event, selectedTime) => {
-    const currentTime = selectedTime || reminderTime;
-    setShowTimePicker(Platform.OS === 'ios');
-    setReminderTime(currentTime);
-  };
-  
-  // Reset all data
-  const resetData = () => {
-    Alert.alert(
-      'איפוס נתונים',
-      'האם אתה בטוח שברצונך לאפס את כל הנתונים? פעולה זו אינה ניתנת לביטול.',
-      [
-        {
-          text: 'ביטול',
-          style: 'cancel'
-        },
-        {
-          text: 'איפוס',
-          style: 'destructive',
-          onPress: () => {
-            // Reset logic would go here - clear AsyncStorage, etc.
-            setStartDate(new Date());
-            setDailyCost('50');
-            Alert.alert('הנתונים אופסו', 'כל הנתונים אופסו בהצלחה.');
-          }
-        }
-      ]
-    );
-  };
+  // Settings state
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [dailyReminderEnabled, setDailyReminderEnabled] = useState(true);
+  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>הגדרות</Text>
-        </View>
-        
-        {/* Clean Timer Settings */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>הגדרות טיימר נקי</Text>
-          
-          <View style={styles.settingItem}>
-            <Text style={styles.settingLabel}>תאריך התחלה</Text>
-            <TouchableOpacity 
-              style={styles.dateButton}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text style={styles.dateButtonText}>{formatDate(startDate)}</Text>
-              <Ionicons name="calendar" size={20} color={COLORS.primary} />
-            </TouchableOpacity>
-            
-            {showDatePicker && (
-              <DateTimePicker
-                value={startDate}
-                mode="date"
-                display="default"
-                onChange={onDateChange}
-                maximumDate={new Date()} // Can't set a date in the future
-              />
-            )}
-          </View>
-          
-          <View style={styles.settingItem}>
-            <Text style={styles.settingLabel}>עלות יומית (₪)</Text>
-            <TextInput
-              style={styles.costInput}
-              value={dailyCost}
-              onChangeText={setDailyCost}
-              keyboardType="numeric"
-              maxLength={5}
-            />
-          </View>
-        </View>
-        
-        {/* Notifications Settings */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>הגדרות</Text>
+      </View>
+      
+      <ScrollView style={styles.scrollContainer}>
+        {/* Notification settings */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>התראות</Text>
           
           <View style={styles.settingItem}>
-            <Text style={styles.settingLabel}>התראות יומיות</Text>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingTitle}>התראות</Text>
+              <Text style={styles.settingDescription}>קבל התראות מהאפליקציה</Text>
+            </View>
             <Switch
-              value={showNotifications}
-              onValueChange={setShowNotifications}
-              trackColor={{ false: '#D9D9D9', true: COLORS.primary }}
-              thumbColor={'#FFFFFF'}
+              value={notificationsEnabled}
+              onValueChange={setNotificationsEnabled}
+              trackColor={{ false: COLORS.border, true: COLORS.primary }}
+              thumbColor="#FFFFFF"
             />
           </View>
           
-          {showNotifications && (
-            <View style={styles.settingItem}>
-              <Text style={styles.settingLabel}>שעת תזכורת</Text>
-              <TouchableOpacity 
-                style={styles.dateButton}
-                onPress={() => setShowTimePicker(true)}
-              >
-                <Text style={styles.dateButtonText}>{formatTime(reminderTime)}</Text>
-                <Ionicons name="time" size={20} color={COLORS.primary} />
-              </TouchableOpacity>
-              
-              {showTimePicker && (
-                <DateTimePicker
-                  value={reminderTime}
-                  mode="time"
-                  display="default"
-                  onChange={onTimeChange}
-                />
-              )}
+          <View style={styles.settingItem}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingTitle}>תזכורת יומית</Text>
+              <Text style={styles.settingDescription}>קבל תזכורת יומית לעדכון היומן</Text>
             </View>
-          )}
+            <Switch
+              value={dailyReminderEnabled}
+              onValueChange={setDailyReminderEnabled}
+              trackColor={{ false: COLORS.border, true: COLORS.primary }}
+              thumbColor="#FFFFFF"
+              disabled={!notificationsEnabled}
+            />
+          </View>
         </View>
         
-        {/* Data Management */}
+        {/* Appearance settings */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>ניהול נתונים</Text>
+          <Text style={styles.sectionTitle}>תצוגה</Text>
           
-          <TouchableOpacity 
-            style={styles.dangerButton}
-            onPress={resetData}
-          >
-            <Ionicons name="trash" size={20} color={'#FFFFFF'} />
-            <Text style={styles.dangerButtonText}>איפוס כל הנתונים</Text>
+          <View style={styles.settingItem}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingTitle}>מצב כהה</Text>
+              <Text style={styles.settingDescription}>שימוש בערכת צבעים כהה</Text>
+            </View>
+            <Switch
+              value={darkModeEnabled}
+              onValueChange={setDarkModeEnabled}
+              trackColor={{ false: COLORS.border, true: COLORS.primary }}
+              thumbColor="#FFFFFF"
+            />
+          </View>
+        </View>
+        
+        {/* Account actions */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>חשבון</Text>
+          
+          <TouchableOpacity style={styles.actionItem}>
+            <Text style={styles.actionTitle}>מחק את כל הנתונים</Text>
+            <Ionicons name="trash-outline" size={24} color={COLORS.error} />
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.actionItem}>
+            <Text style={styles.actionTitle}>איפוס סטטיסטיקות</Text>
+            <Ionicons name="refresh-outline" size={24} color={COLORS.primary} />
           </TouchableOpacity>
         </View>
         
-        {/* About */}
+        {/* App info */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>אודות</Text>
           
-          <Text style={styles.aboutText}>
-            נקי - גרסה 1.0.0
-          </Text>
-          <Text style={styles.aboutText}>
-            אפליקציה לתמיכה בתהליך גמילה מקנאביס
-          </Text>
+          <TouchableOpacity style={styles.actionItem}>
+            <Text style={styles.actionTitle}>תנאי שימוש</Text>
+            <Ionicons name="document-text-outline" size={24} color={COLORS.text} />
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.actionItem}>
+            <Text style={styles.actionTitle}>מדיניות פרטיות</Text>
+            <Ionicons name="shield-checkmark-outline" size={24} color={COLORS.text} />
+          </TouchableOpacity>
+          
+          <View style={styles.versionInfo}>
+            <Text style={styles.versionText}>גרסה 1.0.0</Text>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -196,9 +123,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  content: {
-    padding: SPACING.regular,
-  },
   header: {
     alignItems: 'center',
     marginVertical: SPACING.large,
@@ -208,77 +132,62 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontWeight: 'bold',
   },
+  scrollContainer: {
+    paddingHorizontal: SPACING.regular,
+  },
   section: {
     marginBottom: SPACING.large,
-    backgroundColor: '#F8F8F8',
-    borderRadius: 12,
-    padding: SPACING.regular,
   },
   sectionTitle: {
-    fontSize: FONT_SIZES.large,
-    color: COLORS.text,
-    fontWeight: 'bold',
-    marginBottom: SPACING.medium,
+    fontSize: FONT_SIZES.medium,
+    color: COLORS.textLight,
+    marginBottom: SPACING.small,
+    fontWeight: '600',
   },
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: SPACING.small,
+    paddingVertical: SPACING.medium,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
-  settingLabel: {
+  settingInfo: {
+    flex: 1,
+  },
+  settingTitle: {
     fontSize: FONT_SIZES.medium,
     color: COLORS.text,
+    fontWeight: '500',
+    textAlign: 'right',
   },
-  dateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    paddingHorizontal: SPACING.medium,
-    paddingVertical: SPACING.small,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  dateButtonText: {
-    fontSize: FONT_SIZES.medium,
-    color: COLORS.text,
-    marginRight: SPACING.small,
-  },
-  costInput: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    paddingHorizontal: SPACING.medium,
-    paddingVertical: SPACING.small,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    width: 100,
-    textAlign: 'center',
-    fontSize: FONT_SIZES.medium,
-    color: COLORS.text,
-  },
-  dangerButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.error,
-    borderRadius: 12,
-    padding: SPACING.medium,
-    marginTop: SPACING.small,
-  },
-  dangerButtonText: {
-    marginLeft: SPACING.small,
-    fontSize: FONT_SIZES.medium,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  aboutText: {
-    fontSize: FONT_SIZES.medium,
+  settingDescription: {
+    fontSize: FONT_SIZES.small,
     color: COLORS.textLight,
-    textAlign: 'center',
-    marginBottom: SPACING.small,
+    textAlign: 'right',
+    marginTop: 2,
+  },
+  actionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: SPACING.medium,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  actionTitle: {
+    fontSize: FONT_SIZES.medium,
+    color: COLORS.text,
+    fontWeight: '500',
+    textAlign: 'right',
+  },
+  versionInfo: {
+    alignItems: 'center',
+    marginTop: SPACING.large,
+  },
+  versionText: {
+    fontSize: FONT_SIZES.small,
+    color: COLORS.textLight,
   },
 });
 
