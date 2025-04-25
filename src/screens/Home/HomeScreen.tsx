@@ -1,23 +1,55 @@
 // src/screens/Home/HomeScreen.tsx
 
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
   SafeAreaView,
-  ScrollView 
+  ScrollView
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import moment from 'moment';
 
-// Import theme (you'll need to create this file)
+// Import theme
 import { COLORS, FONT_SIZES, SPACING } from '../../utils/theme';
 
+// Define type for navigation
+type RootStackParamList = {
+  Home: undefined;
+  Journal: undefined;
+  Reinforcement: undefined;
+  Meditation: undefined;
+  Settings: undefined;
+  SOS: undefined;
+};
+
+// Define props interfaces
+interface TimerSectionProps {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+interface MoneySavedSectionProps {
+  amount: number;
+}
+
+interface InspirationSectionProps {
+  quote: string;
+}
+
+interface ActionButtonProps {
+  title: string;
+  icon: string;
+  onPress: () => void;
+}
+
 // Timer display component
-const TimerSection = ({ days, hours, minutes, seconds }) => {
+const TimerSection: React.FC<TimerSectionProps> = ({ days, hours, minutes, seconds }) => {
   return (
     <View style={styles.timerContainer}>
       <Text style={styles.timerTitle}>זמן נקי</Text>
@@ -44,7 +76,7 @@ const TimerSection = ({ days, hours, minutes, seconds }) => {
 };
 
 // Money saved section
-const MoneySavedSection = ({ amount }) => {
+const MoneySavedSection: React.FC<MoneySavedSectionProps> = ({ amount }) => {
   return (
     <View style={styles.moneySavedContainer}>
       <Text style={styles.sectionTitle}>כסף שנחסך</Text>
@@ -57,7 +89,7 @@ const MoneySavedSection = ({ amount }) => {
 };
 
 // Daily inspiration section
-const InspirationSection = ({ quote }) => {
+const InspirationSection: React.FC<InspirationSectionProps> = ({ quote }) => {
   return (
     <View style={styles.inspirationContainer}>
       <Text style={styles.sectionTitle}>השראה יומית</Text>
@@ -69,17 +101,18 @@ const InspirationSection = ({ quote }) => {
 };
 
 // Action button component
-const ActionButton = ({ title, icon, onPress }) => {
+const ActionButton: React.FC<ActionButtonProps> = ({ title, icon, onPress }) => {
   return (
     <TouchableOpacity style={styles.actionButton} onPress={onPress}>
-      <Ionicons name={icon} size={24} color={COLORS.primary} />
+      <Ionicons name={icon as any} size={24} color={COLORS.primary} />
       <Text style={styles.actionButtonText}>{title}</Text>
     </TouchableOpacity>
   );
 };
 
-const HomeScreen = () => {
-  const navigation = useNavigation();
+const HomeScreen: React.FC = () => {
+  // Use the correct navigation type
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   
   // State for timer
   const [timeClean, setTimeClean] = useState({
@@ -139,7 +172,7 @@ const HomeScreen = () => {
         </View>
         
         {/* Clean timer section */}
-        <TimerSection 
+        <TimerSection
           days={timeClean.days}
           hours={timeClean.hours}
           minutes={timeClean.minutes}
@@ -155,20 +188,20 @@ const HomeScreen = () => {
         {/* Action buttons */}
         <View style={styles.actionsContainer}>
           <View style={styles.actionRow}>
-            <ActionButton 
-              title="יומן" 
-              icon="journal-outline" 
-              onPress={() => navigation.navigate('Journal')} 
+            <ActionButton
+              title="יומן"
+              icon="journal-outline"
+              onPress={() => navigation.navigate('Journal')}
             />
-            <ActionButton 
-              title="חיזוק" 
-              icon="star-outline" 
-              onPress={() => navigation.navigate('Reinforcement')} 
+            <ActionButton
+              title="חיזוק"
+              icon="star-outline"
+              onPress={() => navigation.navigate('Reinforcement')}
             />
           </View>
           
           {/* SOS Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.sosButton}
             onPress={() => navigation.navigate('SOS')}
           >
@@ -176,10 +209,10 @@ const HomeScreen = () => {
           </TouchableOpacity>
           
           <View style={styles.actionRow}>
-            <ActionButton 
-              title="מדיטציה" 
-              icon="flower-outline" 
-              onPress={() => navigation.navigate('Meditation')} 
+            <ActionButton
+              title="מדיטציה"
+              icon="flower-outline"
+              onPress={() => navigation.navigate('Meditation')}
             />
           </View>
         </View>

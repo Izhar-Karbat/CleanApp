@@ -1,98 +1,214 @@
-import React, { useState } from 'react';
+// src/screens/Home/HomeScreen.tsx
+
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
   StyleSheet, 
-  SafeAreaView, 
-  ScrollView,
-  TouchableOpacity,
-  Image
+  TouchableOpacity, 
+  SafeAreaView,
+  ScrollView 
 } from 'react-native';
+import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { ComponentProps } from 'react';
+
+
+// Import theme
 import { COLORS, FONT_SIZES, SPACING } from '../../utils/theme';
 
-const MeditationScreen = () => {
-  // Sample meditation sessions
-  const meditationSessions = [
-    {
-      id: '1',
-      title: 'מדיטציית הרפיה',
-      duration: '5 דקות',
-      description: 'מדיטציה קצרה להרגעת הגוף והנפש',
-      image: null // We'd normally have an image here
-    },
-    {
-      id: '2',
-      title: 'התמודדות עם תשוקה',
-      duration: '10 דקות',
-      description: 'מדיטציה לזמנים קשים של רצון עז',
-      image: null
-    },
-    {
-      id: '3',
-      title: 'קבלה עצמית',
-      duration: '15 דקות',
-      description: 'מדיטציה להגברת האהבה העצמית והקבלה',
-      image: null
-    },
-  ];
+// Define a type for valid icon names
+type IconName = ComponentProps<typeof Ionicons>['name'];
 
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+// Define props types
+interface TimerSectionProps {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
 
-  const toggleExpand = (id: string) => {
-    if (expandedId === id) {
-      setExpandedId(null);
-    } else {
-      setExpandedId(id);
-    }
-  };
+interface MoneySavedSectionProps {
+  amount: number;
+}
 
+interface InspirationSectionProps {
+  quote: string;
+}
+
+interface ActionButtonProps {
+  title: string;
+  icon: IconName;
+  onPress: () => void;
+}
+
+// Timer display component
+const TimerSection: React.FC<TimerSectionProps> = ({ days, hours, minutes, seconds }) => {
+  return (
+    <View style={styles.timerContainer}>
+      <Text style={styles.timerTitle}>זמן נקי</Text>
+      <View style={styles.timerRow}>
+        <View style={styles.timerBlock}>
+          <Text style={styles.timerValue}>{days}</Text>
+          <Text style={styles.timerLabel}>ימים</Text>
+        </View>
+        <View style={styles.timerBlock}>
+          <Text style={styles.timerValue}>{hours}</Text>
+          <Text style={styles.timerLabel}>שעות</Text>
+        </View>
+        <View style={styles.timerBlock}>
+          <Text style={styles.timerValue}>{minutes}</Text>
+          <Text style={styles.timerLabel}>דקות</Text>
+        </View>
+        <View style={styles.timerBlock}>
+          <Text style={styles.timerValue}>{seconds}</Text>
+          <Text style={styles.timerLabel}>שניות</Text>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+// Money saved section
+const MoneySavedSection: React.FC<MoneySavedSectionProps> = ({ amount }) => {
+  return (
+    <View style={styles.moneySavedContainer}>
+      <Text style={styles.sectionTitle}>כסף שנחסך</Text>
+      <View style={styles.moneyDisplay}>
+        <Text style={styles.moneyValue}>{amount}</Text>
+        <Text style={styles.moneyCurrency}>₪</Text>
+      </View>
+    </View>
+  );
+};
+
+// Daily inspiration section
+const InspirationSection: React.FC<InspirationSectionProps> = ({ quote }) => {
+  return (
+    <View style={styles.inspirationContainer}>
+      <Text style={styles.sectionTitle}>השראה יומית</Text>
+      <View style={styles.quoteContainer}>
+        <Text style={styles.quoteText}>"{quote}"</Text>
+      </View>
+    </View>
+  );
+};
+
+// Action button component
+const ActionButton: React.FC<ActionButtonProps> = ({ title, icon, onPress }) => {
+  return (
+    <TouchableOpacity style={styles.actionButton} onPress={onPress}>
+      <Ionicons name={icon} size={24} color={COLORS.primary} />
+      <Text style={styles.actionButtonText}>{title}</Text>
+    </TouchableOpacity>
+  );
+};
+
+const HomeScreen: React.FC = () => {
+  // Type the navigation
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
+  
+  // State for timer
+  const [timeClean, setTimeClean] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
+  
+  // State for money saved
+  const [moneySaved, setMoneySaved] = useState(0);
+  
+  // Daily quote (in a real app, this would come from a backend or rotating list)
+  const [quote, setQuote] = useState('כל יום נקי הוא ניצחון שמוביל אל החופש.');
+  
+  // Mock data (in a real app, this would come from storage or context)
+  // Start date - 5 days ago from now
+  const startDate = new Date(new Date().getTime() - 5 * 24 * 60 * 60 * 1000);
+  // Daily cost of cannabis use
+  const dailyCost = 50; // 50 NIS per day
+  
+  // Calculate time clean and money saved
+  useEffect(() => {
+    // Function to update the timer
+    const updateTimer = () => {
+      const now = new Date();
+      const diff = now.getTime() - startDate.getTime();
+      
+      // Calculate time components
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      setTimeClean({ days, hours, minutes, seconds });
+      
+      // Calculate money saved
+      const totalDays = diff / (1000 * 60 * 60 * 24);
+      setMoneySaved(Math.floor(totalDays * dailyCost));
+    };
+    
+    // Update immediately
+    updateTimer();
+    
+    // Set interval to update every second
+    const timerId = setInterval(updateTimer, 1000);
+    
+    // Clean up interval on unmount
+    return () => clearInterval(timerId);
+  }, [startDate, dailyCost]);
+  
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>מדיטציה</Text>
-      </View>
-
-      <ScrollView style={styles.scrollContainer}>
-        <Text style={styles.sectionTitle}>מדיטציות להתמודדות</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>נקי</Text>
+        </View>
         
-        {meditationSessions.map(session => (
-          <View key={session.id} style={styles.meditationCard}>
-            <TouchableOpacity 
-              style={styles.meditationHeader}
-              onPress={() => toggleExpand(session.id)}
-            >
-              <View style={styles.meditationInfo}>
-                <Text style={styles.meditationTitle}>{session.title}</Text>
-                <Text style={styles.meditationDuration}>{session.duration}</Text>
-              </View>
-              <Ionicons 
-                name={expandedId === session.id ? "chevron-up" : "chevron-down"} 
-                size={24} 
-                color={COLORS.primary} 
-              />
-            </TouchableOpacity>
-            
-            {expandedId === session.id && (
-              <View style={styles.meditationContent}>
-                <Text style={styles.meditationDescription}>
-                  {session.description}
-                </Text>
-                <TouchableOpacity style={styles.playButton}>
-                  <Ionicons name="play" size={22} color="#FFF" />
-                  <Text style={styles.playButtonText}>התחל מדיטציה</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+        {/* Clean timer section */}
+        <TimerSection 
+          days={timeClean.days}
+          hours={timeClean.hours}
+          minutes={timeClean.minutes}
+          seconds={timeClean.seconds}
+        />
+        
+        {/* Money saved section */}
+        <MoneySavedSection amount={moneySaved} />
+        
+        {/* Daily inspiration section */}
+        <InspirationSection quote={quote} />
+        
+        {/* Action buttons */}
+        <View style={styles.actionsContainer}>
+          <View style={styles.actionRow}>
+            <ActionButton 
+              title="יומן" 
+              icon="journal-outline" 
+              onPress={() => navigation.navigate('Journal')} 
+            />
+            <ActionButton 
+              title="חיזוק" 
+              icon="star-outline" 
+              onPress={() => navigation.navigate('Reinforcement')} 
+            />
           </View>
-        ))}
-        
-        <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>למה מדיטציה?</Text>
-          <Text style={styles.infoText}>
-            מדיטציה יכולה לעזור לך להתמודד עם רצונות חזקים, להפחית מתח, ולהגביר
-            את היכולת שלך להתמקד במטרות שלך. אפילו 5 דקות ביום יכולות לעשות הבדל.
-          </Text>
+          
+          {/* SOS Button */}
+          <TouchableOpacity 
+            style={styles.sosButton}
+            onPress={() => navigation.navigate('SOS')}
+          >
+            <Text style={styles.sosButtonText}>SOS</Text>
+          </TouchableOpacity>
+          
+          <View style={styles.actionRow}>
+            <ActionButton 
+              title="מדיטציה" 
+              icon="flower-outline" 
+              onPress={() => navigation.navigate('Meditation')} 
+            />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -104,6 +220,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
+  scrollContent: {
+    padding: SPACING.regular,
+  },
   header: {
     alignItems: 'center',
     marginVertical: SPACING.large,
@@ -113,90 +232,113 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontWeight: 'bold',
   },
-  scrollContainer: {
-    paddingHorizontal: SPACING.regular,
+  timerContainer: {
+    marginBottom: SPACING.large,
+    alignItems: 'center',
+  },
+  timerTitle: {
+    fontSize: FONT_SIZES.large,
+    color: COLORS.text,
+    marginBottom: SPACING.small,
+    fontWeight: '600',
+  },
+  timerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  timerBlock: {
+    alignItems: 'center',
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
+    padding: SPACING.medium,
+    minWidth: 70,
+  },
+  timerValue: {
+    fontSize: FONT_SIZES.xlarge,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  timerLabel: {
+    fontSize: FONT_SIZES.small,
+    color: '#FFFFFF',
+  },
+  moneySavedContainer: {
+    alignItems: 'center',
+    marginBottom: SPACING.large,
   },
   sectionTitle: {
     fontSize: FONT_SIZES.large,
     color: COLORS.text,
-    marginBottom: SPACING.medium,
+    marginBottom: SPACING.small,
     fontWeight: '600',
-    textAlign: 'center',
   },
-  meditationCard: {
-    backgroundColor: '#FFFFFF',
+  moneyDisplay: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  moneyValue: {
+    fontSize: FONT_SIZES.xxlarge,
+    fontWeight: 'bold',
+    color: COLORS.accent,
+  },
+  moneyCurrency: {
+    fontSize: FONT_SIZES.large,
+    color: COLORS.accent,
+    marginLeft: 2,
+  },
+  inspirationContainer: {
+    alignItems: 'center',
+    marginBottom: SPACING.large,
+  },
+  quoteContainer: {
+    backgroundColor: COLORS.secondary,
     borderRadius: 12,
-    marginBottom: SPACING.medium,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    padding: SPACING.regular,
+    width: '100%',
   },
-  meditationHeader: {
+  quoteText: {
+    fontSize: FONT_SIZES.medium,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  actionsContainer: {
+    marginBottom: SPACING.large,
+  },
+  actionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: SPACING.medium,
-  },
-  meditationInfo: {
-    flex: 1,
-  },
-  meditationTitle: {
-    fontSize: FONT_SIZES.medium,
-    fontWeight: 'bold',
-    color: COLORS.text,
-    textAlign: 'right',
-  },
-  meditationDuration: {
-    fontSize: FONT_SIZES.small,
-    color: COLORS.textLight,
-    textAlign: 'right',
-    marginTop: 2,
-  },
-  meditationContent: {
-    padding: SPACING.medium,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-  },
-  meditationDescription: {
-    fontSize: FONT_SIZES.regular,
-    color: COLORS.text,
-    textAlign: 'right',
     marginBottom: SPACING.medium,
   },
-  playButton: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 20,
-    paddingVertical: SPACING.small,
-    paddingHorizontal: SPACING.medium,
+  actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'center',
-  },
-  playButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    marginLeft: SPACING.small,
-  },
-  infoCard: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: '#F8F8F8',
     borderRadius: 12,
-    padding: SPACING.large,
-    marginVertical: SPACING.large,
+    padding: SPACING.medium,
+    width: '48%',
+    borderWidth: 1,
+    borderColor: '#EEEEEE',
   },
-  infoTitle: {
+  actionButtonText: {
+    marginLeft: SPACING.small,
     fontSize: FONT_SIZES.medium,
+    color: COLORS.text,
+  },
+  sosButton: {
+    backgroundColor: COLORS.error,
+    borderRadius: 12,
+    padding: SPACING.medium,
+    alignItems: 'center',
+    marginVertical: SPACING.medium,
+  },
+  sosButtonText: {
+    fontSize: FONT_SIZES.large,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: SPACING.small,
-    textAlign: 'center',
-  },
-  infoText: {
-    fontSize: FONT_SIZES.regular,
-    color: '#FFFFFF',
-    textAlign: 'right',
-    lineHeight: 22,
   },
 });
 
-export default MeditationScreen; 
+export default HomeScreen;
