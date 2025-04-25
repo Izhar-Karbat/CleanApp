@@ -1,0 +1,129 @@
+# Clean App (נקי)
+
+An app to support cannabis withdrawal with daily tools, a clean timer, reinforcements, a journal, and coping mechanisms - in Hebrew, with a supportive, non-judgmental approach.
+
+## Features
+
+- **Clean Timer**: Real-time tracking of clean time from the start date
+- **Money Saved**: Calculations based on daily cost
+- **Daily Journal**: Rotating prompts for reflection with a skippable option
+- **Daily Reinforcement**: Motivational quotes and favorites collection
+- **SOS Button**: For moments of difficulty with breathing exercises and calming messages
+- **Meditation**: Simple meditation timer with guidance
+- **Settings**: Customize app preferences (start date, daily cost, etc.)
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v14 or newer)
+- npm or yarn
+- Expo CLI
+- Expo Go app on your mobile device (for testing)
+
+### Installation
+
+1. Clone this repository:
+```bash
+git clone https://github.com/yourusername/clean-app.git
+cd clean-app
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Start the development server:
+```bash
+npx expo start
+```
+
+4. Open the Expo Go app on your mobile device and scan the QR code displayed in the terminal.
+
+## Project Structure
+
+```
+clean-app/
+├── assets/               # Images, fonts, etc.
+├── src/
+│   ├── components/       # Reusable UI components
+│   ├── screens/          # App screens
+│   │   ├── Home/         # Home screen with timer
+│   │   ├── Journal/      # Daily journal
+│   │   ├── Reinforcement/ # Daily reinforcement
+│   │   ├── Meditation/   # Meditation screen
+│   │   ├── Settings/     # App settings
+│   │   └── SOS/          # SOS help screen
+│   ├── navigation/       # Navigation configuration
+│   ├── utils/            # Utility functions
+│   ├── context/          # React context for state management
+│   ├── i18n/             # Localization files
+│   └── data/             # Static data (quotes, prompts)
+├── App.tsx               # Main app component
+└── package.json          # Project dependencies
+```
+
+## Development Guide
+
+### Adding Screens
+
+1. Create a new folder in `src/screens/`
+2. Create a component file (e.g., `NewScreen.tsx`)
+3. Add the screen to the navigation in `App.tsx` or appropriate navigator
+
+### Customizing Content
+
+To modify the app's content:
+
+- Edit journal prompts in `src/data/journalPrompts.js`
+- Modify motivational quotes in `src/data/quotes.js`
+- Update translations in `src/i18n/he.js`
+
+### Implementing Storage
+
+User data should be stored using AsyncStorage:
+
+```typescript
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Save data
+const saveData = async (key, value) => {
+  try {
+    await AsyncStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.error('Error saving data:', error);
+  }
+};
+
+// Load data
+const loadData = async (key) => {
+  try {
+    const value = await AsyncStorage.getItem(key);
+    return value ? JSON.parse(value) : null;
+  } catch (error) {
+    console.error('Error loading data:', error);
+    return null;
+  }
+};
+```
+
+## Next Steps
+
+- Implement data persistence with AsyncStorage
+- Create a Context Provider for global state management
+- Add notifications for daily reminders
+- Implement a complete Hebrew localization
+- Add more meditation exercises and guidance
+- Create a sharing functionality for achievements
+
+## License
+
+This project is licensed under the MIT License.
+
+## Acknowledgments
+
+- Developed as a passion project to help people in the process of cannabis withdrawal
+- Inspired by recovery and wellness applications
