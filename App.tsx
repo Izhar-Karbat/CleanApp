@@ -1,5 +1,6 @@
 // App.tsx
 
+import 'react-native-gesture-handler';
 import React, { useEffect } from 'react';
 import { I18nManager } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';

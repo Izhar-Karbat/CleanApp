@@ -37,9 +37,9 @@ const MeditationScreen = () => {
     },
   ];
 
-  const [expandedId, setExpandedId] = useState(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const toggleExpand = (id) => {
+  const toggleExpand = (id: string) => {
     if (expandedId === id) {
       setExpandedId(null);
     } else {
